@@ -41,9 +41,8 @@ Next you may want to read:
 - [**Features**](https://github.com/microsoft/LightGBM/blob/master/docs/Features.rst) and algorithms supported by LightGBM.
 - [**Parameters**](https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst) is an exhaustive list of customization you can make.
 - [**Distributed Learning**](https://github.com/microsoft/LightGBM/blob/master/docs/Parallel-Learning-Guide.rst) and [**GPU Learning**](https://github.com/microsoft/LightGBM/blob/master/docs/GPU-Tutorial.rst) can speed up computation.
-- [**Laurae++ interactive documentation**](https://sites.google.com/view/lauraepp/parameters) is a detailed guide for hyperparameters.
-- [**FLAML**](https://www.microsoft.com/en-us/research/project/fast-and-lightweight-automl-for-large-scale-data/articles/flaml-a-fast-and-lightweight-automl-library/) provides automated tuning for LightGBM ([code examples](https://github.com/microsoft/FLAML/blob/main/notebook/flaml_lightgbm.ipynb)).
-- [**Optuna Hyperparameter Tuner**](https://medium.com/optuna/lightgbm-tuner-new-optuna-integration-for-hyperparameter-optimization-8b7095e99258) provides automated tuning for LightGBM hyperparameters ([code examples](https://github.com/optuna/optuna/tree/master/examples/lightgbm)).
+- [**FLAML**](https://www.microsoft.com/en-us/research/project/fast-and-lightweight-automl-for-large-scale-data/articles/flaml-a-fast-and-lightweight-automl-library/) provides automated tuning for LightGBM ([code examples](https://microsoft.github.io/FLAML/docs/Examples/AutoML-for-LightGBM/)).
+- [**Optuna Hyperparameter Tuner**](https://medium.com/optuna/lightgbm-tuner-new-optuna-integration-for-hyperparameter-optimization-8b7095e99258) provides automated tuning for LightGBM hyperparameters ([code examples](https://github.com/optuna/optuna-examples/blob/main/lightgbm/lightgbm_tuner_simple.py)).
 - [**Understanding LightGBM Parameters (and How to Tune Them using Neptune)**](https://neptune.ai/blog/lightgbm-parameters-guide).
 
 Documentation for contributors:
@@ -61,6 +60,11 @@ Some old update logs are available at [Key Events](https://github.com/microsoft/
 External (Unofficial) Repositories
 ----------------------------------
 
+Projects listed here offer alternative ways to use LightGBM.
+They are not maintained or officially endorsed by the `LightGBM` development team.
+
+LightGBMLSS (An extension of LightGBM to probabilistic modelling from which prediction intervals and quantiles can be derived): https://github.com/StatMixedML/LightGBMLSS
+
 FLAML (AutoML library for hyperparameter optimization): https://github.com/microsoft/FLAML
 
 Optuna (hyperparameter optimization framework): https://github.com/optuna/optuna
@@ -68,6 +72,8 @@ Optuna (hyperparameter optimization framework): https://github.com/optuna/optuna
 Julia-package: https://github.com/IQVIA-ML/LightGBM.jl
 
 JPMML (Java PMML converter): https://github.com/jpmml/jpmml-lightgbm
+
+Nyoka (Python PMML converter): https://github.com/SoftwareAG/nyoka
 
 Treelite (model compiler for efficient deployment): https://github.com/dmlc/treelite
 
@@ -113,17 +119,21 @@ lightgbm-rs (Rust binding): https://github.com/vaaaaanquish/lightgbm-rs
 
 MLflow (experiment tracking, model monitoring framework): https://github.com/mlflow/mlflow
 
-`{treesnip}` (R `{parsnip}`-compliant interface): https://github.com/curso-r/treesnip
+`{bonsai}` (R `{parsnip}`-compliant interface): https://github.com/tidymodels/bonsai
 
 `{mlr3extralearners}` (R `{mlr3}`-compliant interface): https://github.com/mlr-org/mlr3extralearners
 
 lightgbm-transform (feature transformation binding): https://github.com/microsoft/lightgbm-transform
 
+`postgresml` (LightGBM training and prediction in SQL, via a Postgres extension): https://github.com/postgresml/postgresml
+
+`vaex-ml` (Python DataFrame library with its own interface to LightGBM): https://github.com/vaexio/vaex
+
 Support
 -------
 
 - Ask a question [on Stack Overflow with the `lightgbm` tag](https://stackoverflow.com/questions/ask?tags=lightgbm), we monitor this for new questions.
-- Open **bug reports** and **feature requests** (not questions) on [GitHub issues](https://github.com/microsoft/LightGBM/issues).
+- Open **bug reports** and **feature requests** on [GitHub issues](https://github.com/microsoft/LightGBM/issues).
 
 How to Contribute
 -----------------
@@ -138,13 +148,13 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 Reference Papers
 ----------------
 
+Yu Shi, Guolin Ke, Zhuoming Chen, Shuxin Zheng, Tie-Yan Liu. "Quantized Training of Gradient Boosting Decision Trees" ([link](https://papers.nips.cc/paper_files/paper/2022/hash/77911ed9e6e864ca1a3d165b2c3cb258-Abstract.html)). Advances in Neural Information Processing Systems 35 (NeurIPS 2022), pp. 18822-18833.
+
 Guolin Ke, Qi Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma, Qiwei Ye, Tie-Yan Liu. "[LightGBM: A Highly Efficient Gradient Boosting Decision Tree](https://papers.nips.cc/paper/6907-lightgbm-a-highly-efficient-gradient-boosting-decision-tree)". Advances in Neural Information Processing Systems 30 (NIPS 2017), pp. 3149-3157.
 
 Qi Meng, Guolin Ke, Taifeng Wang, Wei Chen, Qiwei Ye, Zhi-Ming Ma, Tie-Yan Liu. "[A Communication-Efficient Parallel Algorithm for Decision Tree](http://papers.nips.cc/paper/6380-a-communication-efficient-parallel-algorithm-for-decision-tree)". Advances in Neural Information Processing Systems 29 (NIPS 2016), pp. 1279-1287.
 
 Huan Zhang, Si Si and Cho-Jui Hsieh. "[GPU Acceleration for Large-scale Tree Boosting](https://arxiv.org/abs/1706.08359)". SysML Conference, 2018.
-
-**Note**: If you use LightGBM in your GitHub projects, please add `lightgbm` in the `requirements.txt`.
 
 License
 -------

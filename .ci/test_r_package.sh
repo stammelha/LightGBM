@@ -1,7 +1,13 @@
 #!/bin/bash
 
+set -e -E -u -o pipefail
+
+# defaults
+ARCH=$(uname -m)
+INSTALL_CMAKE_FROM_RELEASES=${INSTALL_CMAKE_FROM_RELEASES:-"false"}
+
 # set up R environment
-CRAN_MIRROR="https://cloud.r-project.org/"
+CRAN_MIRROR="https://cran.rstudio.com"
 R_LIB_PATH=~/Rlib
 mkdir -p $R_LIB_PATH
 export R_LIBS=$R_LIB_PATH
@@ -17,15 +23,17 @@ fi
 R_MAJOR_VERSION=( ${R_VERSION//./ } )
 if [[ "${R_MAJOR_VERSION}" == "3" ]]; then
     export R_MAC_VERSION=3.6.3
+    export R_MAC_PKG_URL=${CRAN_MIRROR}/bin/macosx/R-${R_MAC_VERSION}.nn.pkg
     export R_LINUX_VERSION="3.6.3-1bionic"
     export R_APT_REPO="bionic-cran35/"
 elif [[ "${R_MAJOR_VERSION}" == "4" ]]; then
-    export R_MAC_VERSION=4.1.1
-    export R_LINUX_VERSION="4.1.1-1.2004.0"
-    export R_APT_REPO="focal-cran40/"
+    export R_MAC_VERSION=4.3.1
+    export R_MAC_PKG_URL=${CRAN_MIRROR}/bin/macosx/big-sur-${ARCH}/base/R-${R_MAC_VERSION}-${ARCH}.pkg
+    export R_LINUX_VERSION="4.3.1-1.2204.0"
+    export R_APT_REPO="jammy-cran40/"
 else
     echo "Unrecognized R version: ${R_VERSION}"
-    exit -1
+    exit 1
 fi
 
 # installing precompiled R for Ubuntu
@@ -34,91 +42,112 @@ fi
 #
 # `devscripts` is required for 'checkbashisms' (https://github.com/r-lib/actions/issues/111)
 if [[ $OS_NAME == "linux" ]]; then
+    mkdir -p ~/.gnupg
+    echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
     sudo apt-key adv \
+        --homedir ~/.gnupg \
         --keyserver keyserver.ubuntu.com \
-        --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+        --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 || exit 1
     sudo add-apt-repository \
-        "deb https://cloud.r-project.org/bin/linux/ubuntu ${R_APT_REPO}"
+        "deb ${CRAN_MIRROR}/bin/linux/ubuntu ${R_APT_REPO}" || exit 1
     sudo apt-get update
     sudo apt-get install \
         --no-install-recommends \
-        -y --allow-downgrades \
+        -y \
             devscripts \
+            r-base-core=${R_LINUX_VERSION} \
             r-base-dev=${R_LINUX_VERSION} \
             texinfo \
             texlive-latex-extra \
             texlive-latex-recommended \
             texlive-fonts-recommended \
             texlive-fonts-extra \
+            tidy \
             qpdf \
-            || exit -1
+            || exit 1
 
     if [[ $R_BUILD_TYPE == "cran" ]]; then
         sudo apt-get install \
             --no-install-recommends \
             -y \
                 autoconf=$(cat R-package/AUTOCONF_UBUNTU_VERSION) \
-                || exit -1
+                automake \
+                || exit 1
+    fi
+    if [[ $INSTALL_CMAKE_FROM_RELEASES == "true" ]]; then
+        curl -O -L \
+            https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-${ARCH}.sh \
+        || exit 1
+
+        sudo mkdir /opt/cmake || exit 1
+        sudo sh cmake-3.25.1-linux-${ARCH}.sh --skip-license --prefix=/opt/cmake || exit 1
+        sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake || exit 1
     fi
 fi
 
 # Installing R precompiled for Mac OS 10.11 or higher
 if [[ $OS_NAME == "macos" ]]; then
-    brew update-reset && brew update
+    brew update-reset --auto-update
+    brew update --auto-update
     if [[ $R_BUILD_TYPE == "cran" ]]; then
-        brew install automake
+        brew install automake || exit 1
     fi
     brew install \
         checkbashisms \
-        qpdf
-    brew install --cask basictex
+        qpdf || exit 1
+    brew install basictex || exit 1
     export PATH="/Library/TeX/texbin:$PATH"
-    sudo tlmgr --verify-repo=none update --self
-    sudo tlmgr --verify-repo=none install inconsolata helvetic
+    sudo tlmgr --verify-repo=none update --self || exit 1
+    sudo tlmgr --verify-repo=none install inconsolata helvetic rsfs || exit 1
 
-    curl -sL https://cran.r-project.org/bin/macosx/R-${R_MAC_VERSION}.pkg -o R.pkg
+    curl -sL ${R_MAC_PKG_URL} -o R.pkg || exit 1
     sudo installer \
         -pkg $(pwd)/R.pkg \
-        -target /
-
-    # Fix "duplicate libomp versions" issue on Mac
-    # by replacing the R libomp.dylib with a symlink to the one installed with brew
-    if [[ $COMPILER == "clang" ]]; then
-        ver_arr=( ${R_MAC_VERSION//./ } )
-        R_MAJOR_MINOR="${ver_arr[0]}.${ver_arr[1]}"
-        sudo ln -sf \
-            "$(brew --cellar libomp)"/*/lib/libomp.dylib \
-            /Library/Frameworks/R.framework/Versions/${R_MAJOR_MINOR}/Resources/lib/libomp.dylib
-    fi
+        -target / || exit 1
 fi
 
-# Manually install Depends and Imports libraries + 'knitr', 'rmarkdown', 'testthat'
+# fix for issue where CRAN was not returning {lattice} and {evaluate} when using R 3.6
+# "Warning: dependency ‘lattice’ is not available"
+if [[ "${R_MAJOR_VERSION}" == "3" ]]; then
+    Rscript --vanilla -e "install.packages(c('https://cran.r-project.org/src/contrib/Archive/lattice/lattice_0.20-41.tar.gz', 'https://cran.r-project.org/src/contrib/Archive/evaluate/evaluate_0.23.tar.gz'), repos = NULL, lib = '${R_LIB_PATH}')"
+else
+    # {Matrix} needs {lattice}, so this needs to run before manually installing {Matrix}.
+    # This should be unnecessary on R >=4.4.0
+    # ref: https://github.com/microsoft/LightGBM/issues/6433
+    Rscript --vanilla -e "install.packages('lattice', repos = '${CRAN_MIRROR}', lib = '${R_LIB_PATH}')"
+fi
+
+# manually install {Matrix}, as {Matrix}=1.7-0 raised its R floor all the way to R 4.4.0
+# ref: https://github.com/microsoft/LightGBM/issues/6433
+Rscript --vanilla -e "install.packages('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz', repos = NULL, lib = '${R_LIB_PATH}')"
+
+# Manually install Depends and Imports libraries + 'knitr', 'markdown', 'RhpcBLASctl', 'testthat'
 # to avoid a CI-time dependency on devtools (for devtools::install_deps())
 # NOTE: testthat is not required when running rchk
 if [[ "${TASK}" == "r-rchk" ]]; then
-    packages="c('data.table', 'jsonlite', 'knitr', 'Matrix', 'R6', 'rmarkdown')"
+    packages="c('data.table', 'jsonlite', 'knitr', 'markdown', 'R6', 'RhpcBLASctl')"
 else
-    packages="c('data.table', 'jsonlite', 'knitr', 'Matrix', 'R6', 'rmarkdown', 'testthat')"
+    packages="c('data.table', 'jsonlite', 'knitr', 'markdown', 'R6', 'RhpcBLASctl', 'testthat')"
 fi
 compile_from_source="both"
 if [[ $OS_NAME == "macos" ]]; then
     packages+=", type = 'binary'"
     compile_from_source="never"
 fi
-Rscript --vanilla -e "options(install.packages.compile.from.source = '${compile_from_source}'); install.packages(${packages}, repos = '${CRAN_MIRROR}', lib = '${R_LIB_PATH}', dependencies = c('Depends', 'Imports', 'LinkingTo'), Ncpus = parallel::detectCores())" || exit -1
+Rscript --vanilla -e "options(install.packages.compile.from.source = '${compile_from_source}'); install.packages(${packages}, repos = '${CRAN_MIRROR}', lib = '${R_LIB_PATH}', dependencies = c('Depends', 'Imports', 'LinkingTo'), Ncpus = parallel::detectCores())" || exit 1
 
-cd ${BUILD_DIRECTORY}
+cd "${BUILD_DIRECTORY}"
 
 PKG_TARBALL="lightgbm_*.tar.gz"
 LOG_FILE_NAME="lightgbm.Rcheck/00check.log"
 if [[ $R_BUILD_TYPE == "cmake" ]]; then
-    Rscript build_r.R -j4 --skip-install || exit -1
+    Rscript build_r.R -j4 --skip-install || exit 1
 elif [[ $R_BUILD_TYPE == "cran" ]]; then
 
     # on Linux, we recreate configure in CI to test if
     # a change in a PR has changed configure.ac
     if [[ $OS_NAME == "linux" ]]; then
-        ${BUILD_DIRECTORY}/R-package/recreate-configure.sh
+        ./R-package/recreate-configure.sh
 
         num_files_changed=$(
             git diff --name-only | wc -l
@@ -129,11 +158,11 @@ elif [[ $R_BUILD_TYPE == "cran" ]]; then
             git diff --compact-summary
             echo "See R-package/README.md for details on how to recreate this script."
             echo ""
-            exit -1
+            exit 1
         fi
     fi
 
-    ./build-cran-package.sh || exit -1
+    ./build-cran-package.sh || exit 1
 
     if [[ "${TASK}" == "r-rchk" ]]; then
         echo "Checking R package with rchk"
@@ -145,14 +174,15 @@ elif [[ $R_BUILD_TYPE == "cran" ]]; then
             kalibera/rchk:latest \
             "/rchk/packages/${PKG_TARBALL}" \
         2>&1 > ${RCHK_LOG_FILE} \
-        || (cat ${RCHK_LOG_FILE} && exit -1)
+        || (cat ${RCHK_LOG_FILE} && exit 1)
         cat ${RCHK_LOG_FILE}
 
-        # the exception below is from R itself and not LightGBM:
+        # the exceptions below are from R itself and not LightGBM:
         # https://github.com/kalibera/rchk/issues/22#issuecomment-656036156
         exit $(
             cat ${RCHK_LOG_FILE} \
             | grep -v "in function strptime_internal" \
+            | grep -v "in function RunGenCollect" \
             | grep --count -E '\[PB\]|ERROR'
         )
     fi
@@ -192,12 +222,36 @@ BUILD_LOG_FILE=lightgbm.Rcheck/00install.out
 cat ${BUILD_LOG_FILE}
 
 if [[ $check_succeeded == "no" ]]; then
-    exit -1
+    exit 1
 fi
+
+# ensure 'grep --count' doesn't cause failures
+set +e
+
+used_correct_r_version=$(
+    cat $LOG_FILE_NAME \
+    | grep --count "using R version ${R_VERSION}"
+)
+if [[ $used_correct_r_version -ne 1 ]]; then
+    echo "Unexpected R version was used. Expected '${R_VERSION}'."
+    exit 1
+fi
+
+if [[ $R_BUILD_TYPE == "cmake" ]]; then
+    passed_correct_r_version_to_cmake=$(
+        cat $BUILD_LOG_FILE \
+        | grep --count "R version passed into FindLibR.cmake: ${R_VERSION}"
+    )
+    if [[ $used_correct_r_version -ne 1 ]]; then
+        echo "Unexpected R version was passed into cmake. Expected '${R_VERSION}'."
+        exit 1
+    fi
+fi
+
 
 if grep -q -E "NOTE|WARNING|ERROR" "$LOG_FILE_NAME"; then
     echo "NOTEs, WARNINGs, or ERRORs have been found by R CMD check"
-    exit -1
+    exit 1
 fi
 
 # this check makes sure that CI builds of the package actually use OpenMP
@@ -216,7 +270,7 @@ else
 fi
 if [[ $omp_working -ne 1 ]]; then
     echo "OpenMP was not found"
-    exit -1
+    exit 1
 fi
 
 # this check makes sure that CI builds of the package
@@ -234,7 +288,7 @@ else
 fi
 if [[ $mm_prefetch_working -ne 1 ]]; then
     echo "MM_PREFETCH test was not passed"
-    exit -1
+    exit 1
 fi
 
 # this check makes sure that CI builds of the package
@@ -252,7 +306,7 @@ else
 fi
 if [[ $mm_malloc_working -ne 1 ]]; then
     echo "MM_MALLOC test was not passed"
-    exit -1
+    exit 1
 fi
 
 # this check makes sure that no "warning: unknown pragma ignored" logs
@@ -264,6 +318,6 @@ if [[ $R_BUILD_TYPE == "cran" ]]; then
     )
     if [[ $pragma_warning_present -ne 0 ]]; then
         echo "Unknown pragma warning is present, pragmas should have been removed before build"
-        exit -1
+        exit 1
     fi
 fi

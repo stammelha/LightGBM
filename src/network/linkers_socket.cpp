@@ -118,7 +118,7 @@ void Linkers::ParseMachineList(const std::string& machines, const std::string& f
                "Please check machine_list_filename or machines parameter");
   }
   if (client_ips_.size() != static_cast<size_t>(num_machines_)) {
-    Log::Warning("World size is larger than the machine_list size, change world size to %d", client_ips_.size());
+    Log::Warning("World size is larger than the machine_list size, change world size to %zu", client_ips_.size());
     num_machines_ = static_cast<int>(client_ips_.size());
   }
 }
@@ -171,13 +171,9 @@ void Linkers::Construct() {
       need_connect[i] = 1;
     }
   }
-  int need_connect_cnt = 0;
   int incoming_cnt = 0;
   for (auto it = need_connect.begin(); it != need_connect.end(); ++it) {
     int machine_rank = it->first;
-    if (machine_rank >= 0 && machine_rank != rank_) {
-      ++need_connect_cnt;
-    }
     if (machine_rank < rank_) {
       ++incoming_cnt;
     }

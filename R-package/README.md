@@ -16,6 +16,9 @@
     - [Installing from a Pre-compiled lib_lightgbm](#lib_lightgbm)
 * [Examples](#examples)
 * [Testing](#testing)
+    - [Running the Tests](#running-the-tests)
+    - [Code Coverage](#code-coverage)
+* [Updating Documentation](#updating-documentation)
 * [Preparing a CRAN Package](#preparing-a-cran-package)
 * [External Repositories](#external-unofficial-repositories)
 * [Known Issues](#known-issues)
@@ -94,12 +97,18 @@ After installing `Rtools` and `CMake`, be sure the following paths are added to 
     - If you have `Rtools` 4.0, example:
         - `C:\rtools40\mingw64\bin`
         - `C:\rtools40\usr\bin`
+    - If you have `Rtools` 4.2+, example:
+        - `C:\rtools42\x86_64-w64-mingw32.static.posix\bin`
+        - `C:\rtools42\usr\bin`
+        - **NOTE**: this is e.g. `rtools43\` for R 4.3
 * `CMake`
     - example: `C:\Program Files\CMake\bin`
 * `R`
     - example: `C:\Program Files\R\R-3.6.1\bin`
 
 NOTE: Two `Rtools` paths are required from `Rtools` 4.0 onwards because paths and the list of included software was changed in `Rtools` 4.0.
+
+NOTE: `Rtools42` and later take a very different approach to the compiler toolchain than previous releases, and how you install it changes what is required to build packages. See ["Howto: Building R 4.2 and packages on Windows"](https://cran.r-project.org/bin/windows/base/howto-R-4.2.html).
 
 #### Windows Toolchain Options
 
@@ -212,7 +221,7 @@ CRAN does not prepare precompiled binaries for Linux, and as of this writing nei
 
 ### Installing from a Pre-compiled lib_lightgbm <a name="lib_lightgbm"></a>
 
-Previous versions of LightGBM offered the ability to first compile the C++ library (`lib_lightgbm.so` or `lib_lightgbm.dll`) and then build an R package that wraps it.
+Previous versions of LightGBM offered the ability to first compile the C++ library (`lib_lightgbm.{dll,dylib,so}`) and then build an R package that wraps it.
 
 As of version 3.0.0, this is no longer supported. If building from source is difficult for you, please [open an issue](https://github.com/microsoft/LightGBM/issues).
 
@@ -234,20 +243,68 @@ Testing
 
 The R package's unit tests are run automatically on every commit, via integrations like [GitHub Actions](https://github.com/microsoft/LightGBM/actions). Adding new tests in `R-package/tests/testthat` is a valuable way to improve the reliability of the R package.
 
+### Running the Tests
+
+While developing the R package, run the code below to run the unit tests.
+
+```shell
+sh build-cran-package.sh \
+    --no-build-vignettes
+
+R CMD INSTALL --with-keep.source lightgbm*.tar.gz
+cd R-package/tests
+Rscript testthat.R
+```
+
+To run the tests with more verbose logs, set environment variable `LIGHTGBM_TEST_VERBOSITY` to a valid value for parameter [`verbosity`](https://lightgbm.readthedocs.io/en/latest/Parameters.html#verbosity).
+
+```shell
+export LIGHTGBM_TEST_VERBOSITY=1
+cd R-package/tests
+Rscript testthat.R
+```
+
+### Code Coverage
+
 When adding tests, you may want to use test coverage to identify untested areas and to check if the tests you've added are covering all branches of the intended code.
 
 The example below shows how to generate code coverage for the R package on a macOS or Linux setup. To adjust for your environment, refer to [the customization step described above](#custom-installation-linux-mac).
 
 ```shell
 # Install
-sh build-cran-package.sh
+sh build-cran-package.sh \
+    --no-build-vignettes
 
 # Get coverage
 Rscript -e " \
-    coverage  <- covr::package_coverage('./lightgbm_r', type = 'tests', quiet = FALSE);
+    library(covr);
+    coverage <- covr::package_coverage('./lightgbm_r', type = 'tests', quiet = FALSE);
     print(coverage);
     covr::report(coverage, file = file.path(getwd(), 'coverage.html'), browse = TRUE);
     "
+```
+
+Updating Documentation
+----------------------
+
+The R package uses [`{roxygen2}`](https://CRAN.R-project.org/package=roxygen2) to generate its documentation.
+The generated `DESCRIPTION`, `NAMESPACE`, and `man/` files are checked into source control.
+To regenerate those files, run the following.
+
+```shell
+Rscript \
+    --vanilla \
+    -e "install.packages('roxygen2', repos = 'https://cran.rstudio.com')"
+
+sh build-cran-package.sh --no-build-vignettes
+R CMD INSTALL \
+  --with-keep.source \
+  ./lightgbm_*.tar.gz
+
+cd R-package
+Rscript \
+    --vanilla \
+    -e "roxygen2::roxygenize(load = 'installed')"
 ```
 
 Preparing a CRAN Package
@@ -296,21 +353,22 @@ This section briefly explains the key files for building a CRAN package. To upda
 At build time, `configure` will be run and used to create a file `Makevars`, using `Makevars.in` as a template.
 
 1. Edit `configure.ac`.
-2. Create `configure` with `autoconf`. Do not edit it by hand. This file must be generated on Ubuntu 20.04.
+2. Create `configure` with `autoconf`. Do not edit it by hand. This file must be generated on Ubuntu 22.04.
 
-    If you have an Ubuntu 20.04 environment available, run the provided script from the root of the `LightGBM` repository.
+    If you have an Ubuntu 22.04 environment available, run the provided script from the root of the `LightGBM` repository.
 
     ```shell
     ./R-package/recreate-configure.sh
     ```
 
-    If you do not have easy access to an Ubuntu 20.04 environment, the `configure` script can be generated using Docker by running the code below from the root of this repo.
+    If you do not have easy access to an Ubuntu 22.04 environment, the `configure` script can be generated using Docker by running the code below from the root of this repo.
 
     ```shell
     docker run \
+        --rm \
         -v $(pwd):/opt/LightGBM \
         -w /opt/LightGBM \
-        -t ubuntu:20.04 \
+        ubuntu:22.04 \
         ./R-package/recreate-configure.sh
     ```
 
@@ -339,36 +397,6 @@ At build time, `configure.win` will be run and used to create a file `Makevars.w
 sh build-cran-package.sh
 R CMD check --as-cran lightgbm_*.tar.gz
 ```
-
-#### Solaris
-
-All packages uploaded to CRAN must pass `R CMD check` on Solaris 10. To test LightGBM on this operating system, you can use the free service [R Hub](https://builder.r-hub.io/), a free service generously provided by the R Consortium.
-
-```shell
-sh build-cran-package.sh
-```
-
-```r
-package_tarball <- paste0("lightgbm_", readLines("VERSION.txt")[1], ".tar.gz")
-rhub::check(
-    path = package_tarball
-    , email = "your_email_here"
-    , check_args = "--as-cran"
-    , platform = c(
-        "solaris-x86-patched"
-        , "solaris-x86-patched-ods"
-    )
-    , env_vars = c(
-        "R_COMPILE_AND_INSTALL_PACKAGES" = "always"
-    )
-)
-```
-
-Alternatively, GitHub Actions can run code above for you. On a pull request, create a comment with this phrase:
-
-> /gha run r-solaris
-
-**NOTE:** Please do this only once you see that other R tests on a pull request are passing. R Hub is a free resource with limited capacity, and we want to be respectful community members.
 
 #### <a id="UBSAN"></a>ASAN and UBSAN
 
@@ -400,7 +428,7 @@ docker run \
 
 # install dependencies
 RDscript${R_CUSTOMIZATION} \
-  -e "install.packages(c('R6', 'data.table', 'jsonlite', 'Matrix', 'testthat'), repos = 'https://cran.r-project.org', Ncpus = parallel::detectCores())"
+  -e "install.packages(c('R6', 'data.table', 'jsonlite', 'knitr', 'markdown', 'Matrix', 'RhpcBLASctl', 'testthat'), repos = 'https://cran.r-project.org', Ncpus = parallel::detectCores())"
 
 # install lightgbm
 sh build-cran-package.sh --r-executable=RD${R_CUSTOMIZATION}
@@ -425,12 +453,13 @@ You can replicate these checks locally using Docker. Note that instrumented vers
 
 ```shell
 docker run \
+    --rm \
     -v $(pwd):/opt/LightGBM \
     -w /opt/LightGBM \
     -it \
         wch1/r-debug
 
-RDscriptvalgrind -e "install.packages(c('R6', 'data.table', 'jsonlite', 'Matrix', 'testthat'), repos = 'https://cran.rstudio.com', Ncpus = parallel::detectCores())"
+RDscriptvalgrind -e "install.packages(c('R6', 'data.table', 'jsonlite', 'knitr', 'markdown', 'Matrix', 'RhpcBLASctl', 'testthat'), repos = 'https://cran.rstudio.com', Ncpus = parallel::detectCores())"
 
 sh build-cran-package.sh \
     --r-executable=RDvalgrind
@@ -455,13 +484,6 @@ RDvalgrind \
 These tests can also be triggered on any pull request by leaving a comment in a pull request:
 
 > /gha run r-valgrind
-
-External (Unofficial) Repositories
-----------------------------------
-
-Projects listed here are not maintained or endorsed by the `LightGBM` development team, but may offer some features currently missing from the main R package.
-
-* [lightgbm.py](https://github.com/kapsner/lightgbm.py): This R package offers a wrapper built with `reticulate`, a package used to call Python code from R. If you are comfortable with the added installation complexity of installing `lightgbm`'s Python package and the performance cost of passing data between R and Python, you might find that this package offers some features that are not yet available in the native `lightgbm` R package.
 
 Known Issues
 ------------

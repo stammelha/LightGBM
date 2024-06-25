@@ -59,8 +59,9 @@ Many of the examples in this page use functionality from ``numpy``. To run the e
 
 .. code:: python
 
-    data = np.random.rand(500, 10)  # 500 entities, each contains 10 features
-    label = np.random.randint(2, size=500)  # binary target
+    rng = np.random.default_rng()
+    data = rng.uniform(size=(500, 10))  # 500 entities, each contains 10 features
+    label = rng.integers(low=0, high=2, size=(500, ))  # binary target
     train_data = lgb.Dataset(data, label=label)
 
 **To load a scipy.sparse.csr\_matrix array into Dataset:**
@@ -139,7 +140,8 @@ It doesn't need to convert to one-hot encoding, and is much faster than one-hot 
 
 .. code:: python
 
-    w = np.random.rand(500, )
+    rng = np.random.default_rng()
+    w = rng.uniform(size=(500, ))
     train_data = lgb.Dataset(data, label=label, weight=w)
 
 or
@@ -147,7 +149,8 @@ or
 .. code:: python
 
     train_data = lgb.Dataset(data, label=label)
-    w = np.random.rand(500, )
+    rng = np.random.default_rng()
+    w = rng.uniform(size=(500, ))
     train_data.set_weight(w)
 
 And you can use ``Dataset.set_init_score()`` to set initial score, and ``Dataset.set_group()`` to set group/query data for ranking tasks.
@@ -228,18 +231,18 @@ Early stopping requires at least one set in ``valid_sets``. If there is more tha
 
 .. code:: python
 
-    bst = lgb.train(param, train_data, num_round, valid_sets=valid_sets, early_stopping_rounds=5)
+    bst = lgb.train(param, train_data, num_round, valid_sets=valid_sets, callbacks=[lgb.early_stopping(stopping_rounds=5)])
     bst.save_model('model.txt', num_iteration=bst.best_iteration)
 
 The model will train until the validation score stops improving.
-Validation score needs to improve at least every ``early_stopping_rounds`` to continue training.
+Validation score needs to improve at least every ``stopping_rounds`` to continue training.
 
-The index of iteration that has the best performance will be saved in the ``best_iteration`` field if early stopping logic is enabled by setting ``early_stopping_rounds``.
+The index of iteration that has the best performance will be saved in the ``best_iteration`` field if early stopping logic is enabled by setting ``early_stopping`` callback.
 Note that ``train()`` will return a model from the best iteration.
 
 This works with both metrics to minimize (L2, log loss, etc.) and to maximize (NDCG, AUC, etc.).
 Note that if you specify more than one evaluation metric, all of them will be used for early stopping.
-However, you can change this behavior and make LightGBM check only the first metric for early stopping by passing ``first_metric_only=True`` in ``param`` or ``early_stopping`` callback constructor.
+However, you can change this behavior and make LightGBM check only the first metric for early stopping by passing ``first_metric_only=True`` in ``early_stopping`` callback constructor.
 
 Prediction
 ----------
@@ -249,7 +252,8 @@ A model that has been trained or loaded can perform predictions on datasets:
 .. code:: python
 
     # 7 entities, each contains 10 features
-    data = np.random.rand(7, 10)
+    rng = np.random.default_rng()
+    data = rng.uniform(size=(7, 10))
     ypred = bst.predict(data)
 
 If early stopping is enabled during training, you can get predictions from the best iteration with ``bst.best_iteration``:

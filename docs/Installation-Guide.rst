@@ -56,7 +56,7 @@ With GUI
 
 1. Install `Visual Studio`_ (2015 or newer).
 
-2. Download `zip archive`_ and unzip it.
+2. Navigate to one of the releases at https://github.com/microsoft/LightGBM/releases, download ``LightGBM-complete_source_code_zip.zip``, and unzip it.
 
 3. Go to ``LightGBM-master/windows`` folder.
 
@@ -69,18 +69,16 @@ The ``.exe`` file will be in ``LightGBM-master/windows/x64/Release`` folder.
 From Command Line
 *****************
 
-1. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
+1. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 ..
-     cmake --build . --target ALL_BUILD --config Release
+     cmake -B build -S . -A x64
+     cmake --build build --target ALL_BUILD --config Release
 
 The ``.exe`` and ``.dll`` files will be in ``LightGBM/Release`` folder.
 
@@ -91,18 +89,16 @@ MinGW-w64
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -G "MinGW Makefiles" ..
-     mingw32-make.exe -j4
+     cmake -B build -S . -G "MinGW Makefiles"
+     cmake --build build -j4
 
 The ``.exe`` and ``.dll`` files will be in ``LightGBM/`` folder.
 
-**Note**: You may need to run the ``cmake -G "MinGW Makefiles" ..`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
+**Note**: You may need to run the ``cmake -B build -S . -G "MinGW Makefiles"`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
 
 It is recommended that you use **Visual Studio** since it has better multithreading efficiency in **Windows** for many-core systems
 (see `Question 4 <./FAQ.rst#i-am-using-windows-should-i-use-visual-studio-or-mingw-for-compiling-lightgbm>`__ and `Question 8 <./FAQ.rst#cpu-usage-is-low-like-10-in-windows-when-using-lightgbm-on-very-large-datasets-with-many-core-systems>`__).
@@ -118,20 +114,30 @@ On Linux LightGBM can be built using **CMake** and **gcc** or **Clang**.
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake ..
-     make -j4
+     cmake -B build -S .
+     cmake --build build -j4
 
-**Note**: glibc >= 2.14 is required.
+**Note**: glibc >= 2.28 is required.
 
 **Note**: In some rare cases you may need to install OpenMP runtime library separately (use your package manager and search for ``lib[g|i]omp`` for doing this).
 
 Also, you may want to read `gcc Tips <./gcc-Tips.rst>`__.
+
+Using ``Ninja``
+^^^^^^^^^^^^^^^
+
+On Linux, LightGBM can also be built with `Ninja <https://ninja-build.org/>`__ instead of ``make``.
+
+.. code:: sh
+
+     git clone --recursive https://github.com/microsoft/LightGBM
+     cd LightGBM
+     cmake -B build -S . -G 'Ninja'
+     cmake --build build -j2
 
 macOS
 ~~~~~
@@ -146,62 +152,58 @@ Only **Apple Clang** version 8.1 or higher is supported.
 Install Using ``Homebrew``
 **************************
 
-.. code::
+.. code:: sh
 
   brew install lightgbm
 
 Build from GitHub
 *****************
 
-1. Install `CMake`_ (3.16 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **OpenMP**:
 
-   .. code::
+   .. code:: sh
 
      brew install libomp
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake ..
-     make -j4
+     cmake -B build -S .
+     cmake --build build -j4
 
 gcc
 ^^^
 
-1. Install `CMake`_ (3.2 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **gcc**:
 
-   .. code::
+   .. code:: sh
 
      brew install gcc
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
      export CXX=g++-7 CC=gcc-7  # replace "7" with version of gcc installed on your machine
-     mkdir build
-     cd build
-     cmake ..
-     make -j4
+     cmake -B build -S .
+     cmake --build build -j4
 
 Also, you may want to read `gcc Tips <./gcc-Tips.rst>`__.
 
@@ -235,7 +237,7 @@ With GUI
 
 1. Install `Visual Studio`_ (2015 or newer).
 
-2. Download `zip archive`_ and unzip it.
+2. Navigate to one of the releases at https://github.com/microsoft/LightGBM/releases, download ``LightGBM-complete_source_code_zip.zip``, and unzip it.
 
 3. Go to ``LightGBM-master/windows`` folder.
 
@@ -252,18 +254,16 @@ The ``.exe`` file will be in ``LightGBM-master/windows/x64/Release`` folder.
 From Command Line
 -----------------
 
-1. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
+1. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 -DUSE_OPENMP=OFF ..
-     cmake --build . --target ALL_BUILD --config Release
+     cmake -B build -S . -A x64 -DUSE_OPENMP=OFF
+     cmake --build build --target ALL_BUILD --config Release
 
 The ``.exe`` and ``.dll`` files will be in ``LightGBM/Release`` folder.
 
@@ -274,18 +274,16 @@ MinGW-w64
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -G "MinGW Makefiles" -DUSE_OPENMP=OFF ..
-     mingw32-make.exe -j4
+     cmake -B build -S . -G "MinGW Makefiles" -DUSE_OPENMP=OFF
+     cmake --build build -j4
 
 The ``.exe`` and ``.dll`` files will be in ``LightGBM/`` folder.
 
-**Note**: You may need to run the ``cmake -G "MinGW Makefiles" -DUSE_OPENMP=OFF ..`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
+**Note**: You may need to run the ``cmake -B build -S . -G "MinGW Makefiles" -DUSE_OPENMP=OFF`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
 
 Linux
 ^^^^^
@@ -296,14 +294,12 @@ On Linux a version of LightGBM without OpenMP support can be built using **CMake
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_OPENMP=OFF ..
-     make -j4
+     cmake -B build -S . -DUSE_OPENMP=OFF
+     cmake --build build -j4
 
 **Note**: glibc >= 2.14 is required.
 
@@ -317,49 +313,45 @@ Apple Clang
 
 Only **Apple Clang** version 8.1 or higher is supported.
 
-1. Install `CMake`_ (3.16 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_OPENMP=OFF ..
-     make -j4
+     cmake -B build -S . -DUSE_OPENMP=OFF
+     cmake --build build -j4
 
 gcc
 ***
 
-1. Install `CMake`_ (3.2 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **gcc**:
 
-   .. code::
+   .. code:: sh
 
      brew install gcc
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
      export CXX=g++-7 CC=gcc-7  # replace "7" with version of gcc installed on your machine
-     mkdir build
-     cd build
-     cmake -DUSE_OPENMP=OFF ..
-     make -j4
+     cmake -B build -S . -DUSE_OPENMP=OFF
+     cmake --build build -j4
 
 Build MPI Version
 ~~~~~~~~~~~~~~~~~
@@ -385,7 +377,7 @@ With GUI
 
 2. Install `Visual Studio`_ (2015 or newer).
 
-3. Download `zip archive`_ and unzip it.
+3. Navigate to one of the releases at https://github.com/microsoft/LightGBM/releases, download ``LightGBM-complete_source_code_zip.zip``, and unzip it.
 
 4. Go to ``LightGBM-master/windows`` folder.
 
@@ -400,18 +392,16 @@ From Command Line
 
 1. You need to install `MS MPI`_ first. Both ``msmpisdk.msi`` and ``msmpisetup.exe`` are needed.
 
-2. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
+2. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 -DUSE_MPI=ON ..
-     cmake --build . --target ALL_BUILD --config Release
+     cmake -B build -S . -A x64 -DUSE_MPI=ON
+     cmake --build build --target ALL_BUILD --config Release
 
 The ``.exe`` and ``.dll`` files will be in ``LightGBM/Release`` folder.
 
@@ -428,14 +418,12 @@ On Linux an MPI version of LightGBM can be built using **Open MPI**, **CMake** a
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_MPI=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_MPI=ON
+     cmake --build build -j4
 
 **Note**: glibc >= 2.14 is required.
 
@@ -451,67 +439,63 @@ Apple Clang
 
 Only **Apple Clang** version 8.1 or higher is supported.
 
-1. Install `CMake`_ (3.16 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **OpenMP**:
 
-   .. code::
+   .. code:: sh
 
      brew install libomp
 
 3. Install **Open MPI**:
 
-   .. code::
+   .. code:: sh
 
      brew install open-mpi
 
 4. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_MPI=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_MPI=ON
+     cmake --build build -j4
 
 gcc
 ***
 
-1. Install `CMake`_ (3.2 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **gcc**:
 
-   .. code::
+   .. code:: sh
 
      brew install gcc
 
 3. Install **Open MPI**:
 
-   .. code::
+   .. code:: sh
 
      brew install open-mpi
 
 4. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
      export CXX=g++-7 CC=gcc-7  # replace "7" with version of gcc installed on your machine
-     mkdir build
-     cd build
-     cmake -DUSE_MPI=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_MPI=ON
+     cmake --build build -j4
 
 Build GPU Version
 ~~~~~~~~~~~~~~~~~
@@ -533,20 +517,18 @@ The following dependencies should be installed before compilation:
 
    The following Debian packages should provide necessary Boost libraries: ``libboost-dev``, ``libboost-system-dev``, ``libboost-filesystem-dev``.
 
--  **CMake** 3.2 or later.
+-  **CMake**
 
 To build LightGBM GPU version, run the following commands:
 
-.. code::
+.. code:: sh
 
   git clone --recursive https://github.com/microsoft/LightGBM
   cd LightGBM
-  mkdir build
-  cd build
-  cmake -DUSE_GPU=1 ..
+  cmake -B build -S . -DUSE_GPU=1
   # if you have installed NVIDIA CUDA to a customized location, you should specify paths to OpenCL headers and library like the following:
-  # cmake -DUSE_GPU=1 -DOpenCL_LIBRARY=/usr/local/cuda/lib64/libOpenCL.so -DOpenCL_INCLUDE_DIR=/usr/local/cuda/include/ ..
-  make -j4
+  # cmake -B build -S . -DUSE_GPU=1 -DOpenCL_LIBRARY=/usr/local/cuda/lib64/libOpenCL.so -DOpenCL_INCLUDE_DIR=/usr/local/cuda/include/
+  cmake --build build
 
 **Note**: glibc >= 2.14 is required.
 
@@ -561,7 +543,7 @@ If you use **MinGW**, the build procedure is similar to the build on Linux. Refe
 
 Following procedure is for the **MSVC** (Microsoft Visual C++) build.
 
-1. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is installed).
+1. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is installed).
 
 2. Install **OpenCL** for Windows. The installation depends on the brand (NVIDIA, AMD, Intel) of your GPU card.
 
@@ -576,25 +558,25 @@ Following procedure is for the **MSVC** (Microsoft Visual C++) build.
 3. Install `Boost Binaries`_.
 
    **Note**: Match your Visual C++ version:
-   
+
    Visual Studio 2015 -> ``msvc-14.0-64.exe``,
 
    Visual Studio 2017 -> ``msvc-14.1-64.exe``,
 
-   Visual Studio 2019 -> ``msvc-14.2-64.exe``.
+   Visual Studio 2019 -> ``msvc-14.2-64.exe``,
+
+   Visual Studio 2022 -> ``msvc-14.3-64.exe``.
 
 4. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 -DUSE_GPU=1 -DBOOST_ROOT=C:/local/boost_1_63_0 -DBOOST_LIBRARYDIR=C:/local/boost_1_63_0/lib64-msvc-14.0 ..
+     cmake -B build -S . -A x64 -DUSE_GPU=1 -DBOOST_ROOT=C:/local/boost_1_63_0 -DBOOST_LIBRARYDIR=C:/local/boost_1_63_0/lib64-msvc-14.0
      # if you have installed NVIDIA CUDA to a customized location, you should specify paths to OpenCL headers and library like the following:
-     # cmake -A x64 -DUSE_GPU=1 -DBOOST_ROOT=C:/local/boost_1_63_0 -DBOOST_LIBRARYDIR=C:/local/boost_1_63_0/lib64-msvc-14.0 -DOpenCL_LIBRARY="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/lib/x64/OpenCL.lib" -DOpenCL_INCLUDE_DIR="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/include" ..
-     cmake --build . --target ALL_BUILD --config Release
+     # cmake -B build -S . -A x64 -DUSE_GPU=1 -DBOOST_ROOT=C:/local/boost_1_63_0 -DBOOST_LIBRARYDIR=C:/local/boost_1_63_0/lib64-msvc-14.0 -DOpenCL_LIBRARY="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/lib/x64/OpenCL.lib" -DOpenCL_INCLUDE_DIR="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/include"
+     cmake --build build --target ALL_BUILD --config Release
 
    **Note**: ``C:/local/boost_1_63_0`` and ``C:/local/boost_1_63_0/lib64-msvc-14.0`` are locations of your **Boost** binaries (assuming you've downloaded 1.63.0 version for Visual Studio 2015).
 
@@ -603,14 +585,13 @@ Docker
 
 Refer to `GPU Docker folder <https://github.com/microsoft/LightGBM/tree/master/docker/gpu>`__.
 
-Build CUDA Version (Experimental)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build CUDA Version
+~~~~~~~~~~~~~~~~~~
 
 The `original GPU build <#build-gpu-version>`__ of LightGBM (``device_type=gpu``) is based on OpenCL.
 
-The CUDA-based build (``device_type=cuda``) is a separate implementation and requires an NVIDIA graphics card with compute capability 6.0 and higher. It should be considered experimental, and we suggest using it only when it is impossible to use OpenCL version (for example, on IBM POWER microprocessors).
-
-**Note**: only Linux is supported, other operating systems are not supported yet.
+The CUDA-based build (``device_type=cuda``) is a separate implementation.
+Use this version in Linux environments with an NVIDIA GPU with compute capability 6.0 or higher.
 
 Linux
 ^^^^^
@@ -619,27 +600,40 @@ On Linux a CUDA version of LightGBM can be built using **CUDA**, **CMake** and *
 
 The following dependencies should be installed before compilation:
 
--  **CUDA** 9.0 or later libraries. Please refer to `this detailed guide`_. Pay great attention to the minimum required versions of host compilers listed in the table from that guide and use only recommended versions of compilers.
+-  **CUDA** 11.0 or later libraries. Please refer to `this detailed guide`_. Pay great attention to the minimum required versions of host compilers listed in the table from that guide and use only recommended versions of compilers.
 
--  **CMake** 3.16 or later.
+-  **CMake**
 
 To build LightGBM CUDA version, run the following commands:
 
-.. code::
+.. code:: sh
 
   git clone --recursive https://github.com/microsoft/LightGBM
   cd LightGBM
-  mkdir build
-  cd build
-  cmake -DUSE_CUDA=1 ..
-  make -j4
+  cmake -B build -S . -DUSE_CUDA=1
+  cmake --build build -j4
 
 **Note**: glibc >= 2.14 is required.
 
 **Note**: In some rare cases you may need to install OpenMP runtime library separately (use your package manager and search for ``lib[g|i]omp`` for doing this).
 
+macOS
+^^^^^
+
+The CUDA version is not supported on macOS.
+
+Windows
+^^^^^^^
+
+The CUDA version is not supported on Windows.
+Use the GPU version (``device_type=gpu``) for GPU acceleration on Windows.
+
 Build HDFS Version
 ~~~~~~~~~~~~~~~~~~
+
+.. warning::
+   HDFS support in LightGBM is deprecated, and will be removed in a future release.
+   See https://github.com/microsoft/LightGBM/issues/6436.
 
 The HDFS version of LightGBM was tested on CDH-5.14.4 cluster.
 
@@ -652,20 +646,18 @@ On Linux a HDFS version of LightGBM can be built using **CMake** and **gcc**.
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_HDFS=ON ..
+     cmake -B build -S . -DUSE_HDFS=ON
      # if you have installed HDFS to a customized location, you should specify paths to HDFS headers (hdfs.h) and library (libhdfs.so) like the following:
      # cmake \
      #   -DUSE_HDFS=ON \
      #   -DHDFS_LIB="/opt/cloudera/parcels/CDH-5.14.4-1.cdh5.14.4.p0.3/lib64/libhdfs.so" \
      #   -DHDFS_INCLUDE_DIR="/opt/cloudera/parcels/CDH-5.14.4-1.cdh5.14.4.p0.3/include/" \
      #   ..
-     make -j4
+     cmake --build build -j4
 
 **Note**: glibc >= 2.14 is required.
 
@@ -684,20 +676,18 @@ On Windows a Java wrapper of LightGBM can be built using **Java**, **SWIG**, **C
 VS Build Tools
 **************
 
-1. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
+1. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
 
 2. Install `SWIG`_ and **Java** (also make sure that ``JAVA_HOME`` is set properly).
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 -DUSE_SWIG=ON ..
-     cmake --build . --target ALL_BUILD --config Release
+     cmake -B build -S . -A x64 -DUSE_SWIG=ON
+     cmake --build build --target ALL_BUILD --config Release
 
 The ``.jar`` file will be in ``LightGBM/build`` folder and the ``.dll`` files will be in ``LightGBM/Release`` folder.
 
@@ -710,18 +700,16 @@ MinGW-w64
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -G "MinGW Makefiles" -DUSE_SWIG=ON ..
-     mingw32-make.exe -j4
+     cmake -B build -S . -G "MinGW Makefiles" -DUSE_SWIG=ON
+     cmake --build build -j4
 
 The ``.jar`` file will be in ``LightGBM/build`` folder and the ``.dll`` files will be in ``LightGBM/`` folder.
 
-**Note**: You may need to run the ``cmake -G "MinGW Makefiles" -DUSE_SWIG=ON ..`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
+**Note**: You may need to run the ``cmake -B build -S . -G "MinGW Makefiles" -DUSE_SWIG=ON`` one more time if you encounter the ``sh.exe was found in your PATH`` error.
 
 It is recommended to use **VS Build Tools (Visual Studio)** since it has better multithreading efficiency in **Windows** for many-core systems
 (see `Question 4 <./FAQ.rst#i-am-using-windows-should-i-use-visual-studio-or-mingw-for-compiling-lightgbm>`__ and `Question 8 <./FAQ.rst#cpu-usage-is-low-like-10-in-windows-when-using-lightgbm-on-very-large-datasets-with-many-core-systems>`__).
@@ -737,14 +725,12 @@ On Linux a Java wrapper of LightGBM can be built using **Java**, **SWIG**, **CMa
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_SWIG=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_SWIG=ON
+     cmake --build build -j4
 
 **Note**: glibc >= 2.14 is required.
 
@@ -763,55 +749,51 @@ Apple Clang
 
 Only **Apple Clang** version 8.1 or higher is supported.
 
-1. Install `CMake`_ (3.16 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **OpenMP**:
 
-   .. code::
+   .. code:: sh
 
      brew install libomp
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DUSE_SWIG=ON -DAPPLE_OUTPUT_DYLIB=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_SWIG=ON
+     cmake --build build -j4
 
 gcc
 ***
 
-1. Install `CMake`_ (3.2 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **gcc**:
 
-   .. code::
+   .. code:: sh
 
      brew install gcc
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
      export CXX=g++-7 CC=gcc-7  # replace "7" with version of gcc installed on your machine
-     mkdir build
-     cd build
-     cmake -DUSE_SWIG=ON -DAPPLE_OUTPUT_DYLIB=ON ..
-     make -j4
+     cmake -B build -S . -DUSE_SWIG=ON
+     cmake --build build -j4
 
 Also, you may want to read `gcc Tips <./gcc-Tips.rst>`__.
 
@@ -823,18 +805,16 @@ Windows
 
 On Windows, C++ unit tests of LightGBM can be built using **CMake** and **VS Build Tools**.
 
-1. Install `Git for Windows`_, `CMake`_ (3.8 or higher) and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
+1. Install `Git for Windows`_, `CMake`_ and `VS Build Tools`_ (**VS Build Tools** is not needed if **Visual Studio** (2015 or newer) is already installed).
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: console
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -A x64 -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF ..
-     cmake --build . --target testlightgbm --config Debug
+     cmake -B build -S . -A x64 -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF
+     cmake --build build --target testlightgbm --config Debug
 
 The ``.exe`` file will be in ``LightGBM/Debug`` folder.
 
@@ -847,14 +827,12 @@ On Linux a C++ unit tests of LightGBM can be built using **CMake** and **gcc** o
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF ..
-     make testlightgbm -j4
+     cmake -B build -S . -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF
+     cmake --build build --target testlightgbm -j4
 
 **Note**: glibc >= 2.14 is required.
 
@@ -868,49 +846,45 @@ Apple Clang
 
 Only **Apple Clang** version 8.1 or higher is supported.
 
-1. Install `CMake`_ (3.16 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
-     mkdir build
-     cd build
-     cmake -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF ..
-     make testlightgbm -j4
+     cmake -B build -S . -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF
+     cmake --build build --target testlightgbm -j4
 
 gcc
 ***
 
-1. Install `CMake`_ (3.2 or higher):
+1. Install `CMake`_ :
 
-   .. code::
+   .. code:: sh
 
      brew install cmake
 
 2. Install **gcc**:
 
-   .. code::
+   .. code:: sh
 
      brew install gcc
 
 3. Run the following commands:
 
-   .. code::
+   .. code:: sh
 
      git clone --recursive https://github.com/microsoft/LightGBM
      cd LightGBM
      export CXX=g++-7 CC=gcc-7  # replace "7" with version of gcc installed on your machine
-     mkdir build
-     cd build
-     cmake -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF ..
-     make testlightgbm -j4
+     cmake -B build -S . -DBUILD_CPP_TEST=ON -DUSE_OPENMP=OFF
+     cmake --build build --target testlightgbm -j4
 
 
 .. |download artifacts| image:: ./_static/images/artifacts-not-available.svg
@@ -919,8 +893,6 @@ gcc
 .. _Python-package: https://github.com/microsoft/LightGBM/tree/master/python-package
 
 .. _R-package: https://github.com/microsoft/LightGBM/tree/master/R-package
-
-.. _zip archive: https://github.com/microsoft/LightGBM/archive/master.zip
 
 .. _Visual Studio: https://visualstudio.microsoft.com/downloads/
 
@@ -936,7 +908,7 @@ gcc
 
 .. _RDMA: https://en.wikipedia.org/wiki/Remote_direct_memory_access
 
-.. _MS MPI: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi-release-notes
+.. _MS MPI: https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi-release-notes
 
 .. _Open MPI: https://www.open-mpi.org/
 
@@ -946,7 +918,7 @@ gcc
 
 .. _Boost Binaries: https://sourceforge.net/projects/boost/files/boost-binaries/
 
-.. _SWIG: http://www.swig.org/download.html
+.. _SWIG: https://www.swig.org/download.html
 
 .. _this detailed guide: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
 

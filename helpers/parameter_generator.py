@@ -6,14 +6,14 @@ with list of all parameters, aliases table and other routines
 along with parameters description in LightGBM/docs/Parameters.rst file
 from the information in LightGBM/include/LightGBM/config.h file.
 """
+
+import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 
-def get_parameter_infos(
-    config_hpp: Path
-) -> Tuple[List[Tuple[str, int]], List[List[Dict[str, List]]]]:
+def get_parameter_infos(config_hpp: Path) -> Tuple[List[Tuple[str, int]], List[List[Dict[str, List]]]]:
     """Parse config header file.
 
     Parameters
@@ -34,6 +34,8 @@ def get_parameter_infos(
     member_infos: List[List[Dict[str, List]]] = []
     with open(config_hpp) as config_hpp_file:
         for line in config_hpp_file:
+            if line.strip() in {"#ifndef __NVCC__", "#endif  // __NVCC__"}:
+                continue
             if "#pragma region Parameters" in line:
                 is_inparameter = True
             elif "#pragma region" in line and "Parameters" in line:
@@ -41,7 +43,7 @@ def get_parameter_infos(
                 cur_key = line.split("region")[1].strip()
                 keys.append((cur_key, key_lvl))
                 member_infos.append([])
-            elif '#pragma endregion' in line:
+            elif "#pragma endregion" in line:
                 key_lvl -= 1
                 if cur_key is not None:
                     cur_key = None
@@ -84,9 +86,7 @@ def get_parameter_infos(
     return keys, member_infos
 
 
-def get_names(
-    infos: List[List[Dict[str, List]]]
-) -> List[str]:
+def get_names(infos: List[List[Dict[str, List]]]) -> List[str]:
     """Get names of all parameters.
 
     Parameters
@@ -106,9 +106,7 @@ def get_names(
     return names
 
 
-def get_alias(
-    infos: List[List[Dict[str, List]]]
-) -> List[Tuple[str, str]]:
+def get_alias(infos: List[List[Dict[str, List]]]) -> List[Tuple[str, str]]:
     """Get aliases of all parameters.
 
     Parameters
@@ -126,16 +124,13 @@ def get_alias(
         for y in x:
             if "alias" in y:
                 name = y["name"][0]
-                alias = y["alias"][0].split(',')
+                alias = y["alias"][0].split(",")
                 for name2 in alias:
                     pairs.append((name2.strip(), name))
     return pairs
 
 
-def parse_check(
-    check: str,
-    reverse: bool = False
-) -> Tuple[str, str]:
+def parse_check(check: str, reverse: bool = False) -> Tuple[str, str]:
     """Parse the constraint.
 
     Parameters
@@ -157,17 +152,13 @@ def parse_check(
         idx = 2
         float(check[idx:])
     if reverse:
-        reversed_sign = {'<': '>', '>': '<', '<=': '>=', '>=': '<='}
+        reversed_sign = {"<": ">", ">": "<", "<=": ">=", ">=": "<="}
         return check[idx:], reversed_sign[check[:idx]]
     else:
         return check[idx:], check[:idx]
 
 
-def set_one_var_from_string(
-    name: str,
-    param_type: str,
-    checks: List[str]
-) -> str:
+def set_one_var_from_string(name: str, param_type: str, checks: List[str]) -> str:
     """Construct code for auto config file for one param value.
 
     Parameters
@@ -206,9 +197,7 @@ def set_one_var_from_string(
 
 
 def gen_parameter_description(
-    sections: List[Tuple[str, int]],
-    descriptions: List[List[Dict[str, List]]],
-    params_rst: Path
+    sections: List[Tuple[str, int]], descriptions: List[List[Dict[str, List]]], params_rst: Path
 ) -> None:
     """Write descriptions of parameters to the documentation file.
 
@@ -222,58 +211,57 @@ def gen_parameter_description(
         Path to the file with parameters documentation.
     """
     params_to_write = []
-    lvl_mapper = {1: '-', 2: '~'}
+    lvl_mapper = {1: "-", 2: "~"}
     for (section_name, section_lvl), section_params in zip(sections, descriptions):
         heading_sign = lvl_mapper[section_lvl]
-        params_to_write.append(f'{section_name}\n{heading_sign * len(section_name)}')
+        params_to_write.append(f"{section_name}\n{heading_sign * len(section_name)}")
         for param_desc in section_params:
-            name = param_desc['name'][0]
-            default_raw = param_desc['default'][0]
+            name = param_desc["name"][0]
+            default_raw = param_desc["default"][0]
             default = default_raw.strip('"') if len(default_raw.strip('"')) > 0 else default_raw
-            param_type = param_desc.get('type', param_desc['inner_type'])[0].split(':')[-1].split('<')[-1].strip('>')
-            options = param_desc.get('options', [])
+            param_type = param_desc.get("type", param_desc["inner_type"])[0].split(":")[-1].split("<")[-1].strip(">")
+            options = param_desc.get("options", [])
             if len(options) > 0:
-                opts = '``, ``'.join([x.strip() for x in options[0].split(',')])
-                options_str = f', options: ``{opts}``'
+                opts = "``, ``".join([x.strip() for x in options[0].split(",")])
+                options_str = f", options: ``{opts}``"
             else:
-                options_str = ''
-            aliases = param_desc.get('alias', [])
+                options_str = ""
+            aliases = param_desc.get("alias", [])
             if len(aliases) > 0:
-                aliases_joined = '``, ``'.join([x.strip() for x in aliases[0].split(',')])
-                aliases_str = f', aliases: ``{aliases_joined}``'
+                aliases_joined = "``, ``".join([x.strip() for x in aliases[0].split(",")])
+                aliases_str = f", aliases: ``{aliases_joined}``"
             else:
-                aliases_str = ''
-            checks = sorted(param_desc.get('check', []))
+                aliases_str = ""
+            checks = sorted(param_desc.get("check", []))
             checks_len = len(checks)
             if checks_len > 1:
                 number1, sign1 = parse_check(checks[0])
                 number2, sign2 = parse_check(checks[1], reverse=True)
-                checks_str = f', constraints: ``{number2} {sign2} {name} {sign1} {number1}``'
+                checks_str = f", constraints: ``{number2} {sign2} {name} {sign1} {number1}``"
             elif checks_len == 1:
                 number, sign = parse_check(checks[0])
-                checks_str = f', constraints: ``{name} {sign} {number}``'
+                checks_str = f", constraints: ``{name} {sign} {number}``"
             else:
-                checks_str = ''
+                checks_str = ""
             main_desc = f'-  ``{name}`` :raw-html:`<a id="{name}" title="Permalink to this parameter" href="#{name}">&#x1F517;&#xFE0E;</a>`, default = ``{default}``, type = {param_type}{options_str}{aliases_str}{checks_str}'
             params_to_write.append(main_desc)
-            params_to_write.extend([f"{' ' * 3 * int(desc[0][-1])}-  {desc[1]}" for desc in param_desc['desc']])
+            params_to_write.extend([f"{' ' * 3 * int(desc[0][-1])}-  {desc[1]}" for desc in param_desc["desc"]])
 
     with open(params_rst) as original_params_file:
         all_lines = original_params_file.read()
-        before, start_sep, _ = all_lines.partition('.. start params list\n\n')
-        _, end_sep, after = all_lines.partition('\n\n.. end params list')
+        before, start_sep, _ = all_lines.partition(".. start params list\n\n")
+        _, end_sep, after = all_lines.partition("\n\n.. end params list")
 
     with open(params_rst, "w") as new_params_file:
         new_params_file.write(before)
         new_params_file.write(start_sep)
-        new_params_file.write('\n\n'.join(params_to_write))
+        new_params_file.write("\n\n".join(params_to_write))
         new_params_file.write(end_sep)
         new_params_file.write(after)
 
 
 def gen_parameter_code(
-    config_hpp: Path,
-    config_out_cpp: Path
+    config_hpp: Path, config_out_cpp: Path
 ) -> Tuple[List[Tuple[str, int]], List[List[Dict[str, List]]]]:
     """Generate auto config file.
 
@@ -327,7 +315,7 @@ def gen_parameter_code(
     str_to_write += '  std::string tmp_str = "";\n'
     for x in infos:
         for y in x:
-            if "[doc-only]" in y:
+            if "[no-automatically-extract]" in y:
                 continue
             param_type = y["inner_type"][0]
             name = y["name"][0]
@@ -342,7 +330,7 @@ def gen_parameter_code(
     str_to_write += "  std::stringstream str_buf;\n"
     for x in infos:
         for y in x:
-            if "[doc-only]" in y or "[no-save]" in y:
+            if "[no-save]" in y:
                 continue
             param_type = y["inner_type"][0]
             name = y["name"][0]
@@ -357,19 +345,45 @@ def gen_parameter_code(
     str_to_write += "  return str_buf.str();\n"
     str_to_write += "}\n\n"
 
-    str_to_write += "const std::string Config::DumpAliases() {\n"
-    str_to_write += "  std::stringstream str_buf;\n"
-    str_to_write += '  str_buf << "{";\n'
-    for idx, name in enumerate(names):
-        if idx > 0:
-            str_to_write += ', ";\n'
-        aliases = '\\", \\"'.join([alias for alias in names_with_aliases[name]])
-        aliases = f'[\\"{aliases}\\"]' if aliases else '[]'
-        str_to_write += f'  str_buf << "\\"{name}\\": {aliases}'
-    str_to_write += '";\n'
-    str_to_write += '  str_buf << "}";\n'
-    str_to_write += "  return str_buf.str();\n"
-    str_to_write += "}\n\n"
+    str_to_write += """const std::unordered_map<std::string, std::vector<std::string>>& Config::parameter2aliases() {
+  static std::unordered_map<std::string, std::vector<std::string>> map({"""
+    for name in names:
+        str_to_write += '\n    {"' + name + '", '
+        if names_with_aliases[name]:
+            str_to_write += '{"' + '", "'.join(names_with_aliases[name]) + '"}},'
+        else:
+            str_to_write += "{}},"
+    str_to_write += """
+  });
+  return map;
+}
+
+"""
+    str_to_write += """const std::unordered_map<std::string, std::string>& Config::ParameterTypes() {
+  static std::unordered_map<std::string, std::string> map({"""
+    int_t_pat = re.compile(r"int\d+_t")
+    # the following are stored as comma separated strings but are arrays in the wrappers
+    overrides = {
+        "categorical_feature": "vector<int>",
+        "ignore_column": "vector<int>",
+        "interaction_constraints": "vector<vector<int>>",
+    }
+    for x in infos:
+        for y in x:
+            name = y["name"][0]
+            if name == "task":
+                continue
+            if name in overrides:
+                param_type = overrides[name]
+            else:
+                param_type = int_t_pat.sub("int", y["inner_type"][0]).replace("std::", "")
+            str_to_write += '\n    {"' + name + '", "' + param_type + '"},'
+    str_to_write += """
+  });
+  return map;
+}
+
+"""
 
     str_to_write += "}  // namespace LightGBM\n"
     with open(config_out_cpp, "w") as config_out_cpp_file:
@@ -380,8 +394,8 @@ def gen_parameter_code(
 
 if __name__ == "__main__":
     current_dir = Path(__file__).absolute().parent
-    config_hpp = current_dir.parent / 'include' / 'LightGBM' / 'config.h'
-    config_out_cpp = current_dir.parent / 'src' / 'io' / 'config_auto.cpp'
-    params_rst = current_dir.parent / 'docs' / 'Parameters.rst'
+    config_hpp = current_dir.parent / "include" / "LightGBM" / "config.h"
+    config_out_cpp = current_dir.parent / "src" / "io" / "config_auto.cpp"
+    params_rst = current_dir.parent / "docs" / "Parameters.rst"
     sections, descriptions = gen_parameter_code(config_hpp, config_out_cpp)
     gen_parameter_description(sections, descriptions, params_rst)

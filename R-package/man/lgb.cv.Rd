@@ -25,7 +25,8 @@ lgb.cv(
   early_stopping_rounds = NULL,
   callbacks = list(),
   reset_data = FALSE,
-  serializable = TRUE
+  serializable = TRUE,
+  eval_train_metric = FALSE
 )
 }
 \arguments{
@@ -40,9 +41,9 @@ may allow you to pass other types of data like \code{matrix} and then separately
 
 \item{nfold}{the original dataset is randomly partitioned into \code{nfold} equal size subsamples.}
 
-\item{label}{Vector of labels, used if \code{data} is not an \code{\link{lgb.Dataset}}}
+\item{label}{Deprecated. See "Deprecated Arguments" section below.}
 
-\item{weight}{vector of response values. If not NULL, will set to dataset}
+\item{weight}{Deprecated. See "Deprecated Arguments" section below.}
 
 \item{obj}{objective function, can be character or custom objective function. Examples include
 \code{regression}, \code{regression_l1}, \code{huber},
@@ -82,11 +83,12 @@ may allow you to pass other types of data like \code{matrix} and then separately
                 }
             }}
 
-\item{verbose}{verbosity for output, if <= 0, also will disable the print of evaluation during training}
+\item{verbose}{verbosity for output, if <= 0 and \code{valids} has been provided, also will disable the
+printing of evaluation during training}
 
 \item{record}{Boolean, TRUE will record iteration message to \code{booster$record_evals}}
 
-\item{eval_freq}{evaluation output frequency, only effect when verbose > 0}
+\item{eval_freq}{evaluation output frequency, only effective when verbose > 0 and \code{valids} has been provided}
 
 \item{showsd}{\code{boolean}, whether to show standard deviation of cross validation.
 This parameter defaults to \code{TRUE}. Setting it to \code{FALSE} can lead to a
@@ -99,13 +101,11 @@ by the values of outcome labels.}
 (each element must be a vector of test fold's indices). When folds are supplied,
 the \code{nfold} and \code{stratified} parameters are ignored.}
 
-\item{init_model}{path of model file of \code{lgb.Booster} object, will continue training from this model}
+\item{init_model}{path of model file or \code{lgb.Booster} object, will continue training from this model}
 
-\item{colnames}{feature names, if not null, will use this to overwrite the names in dataset}
+\item{colnames}{Deprecated. See "Deprecated Arguments" section below.}
 
-\item{categorical_feature}{categorical features. This can either be a character vector of feature
-names or an integer vector with the indices of the features (e.g.
-\code{c(1L, 10L)} to say "the first and tenth columns").}
+\item{categorical_feature}{Deprecated. See "Deprecated Arguments" section below.}
 
 \item{early_stopping_rounds}{int. Activates early stopping. When this parameter is non-null,
 training will stop if the evaluation of any metric on any validation set
@@ -120,6 +120,10 @@ into a predictor model which frees up memory and the original datasets}
 
 \item{serializable}{whether to make the resulting objects serializable through functions such as
 \code{save} or \code{saveRDS} (see section "Model serialization").}
+
+\item{eval_train_metric}{\code{boolean}, whether to add the cross validation results on the
+training data. This parameter defaults to \code{FALSE}. Setting it to \code{TRUE}
+will increase run time.}
 }
 \value{
 a trained model \code{lgb.CVBooster}.
@@ -127,6 +131,14 @@ a trained model \code{lgb.CVBooster}.
 \description{
 Cross validation logic used by LightGBM
 }
+\section{Deprecated Arguments}{
+
+
+A future release of \code{lightgbm} will require passing an \code{lgb.Dataset}
+to argument \code{'data'}. It will also remove support for passing arguments
+\code{'categorical_feature'}, \code{'colnames'}, \code{'label'}, and \code{'weight'}.
+}
+
 \section{Early Stopping}{
 
 
@@ -146,6 +158,8 @@ Cross validation logic used by LightGBM
 
 \examples{
 \donttest{
+\dontshow{setLGBMthreads(2L)}
+\dontshow{data.table::setDTthreads(1L)}
 data(agaricus.train, package = "lightgbm")
 train <- agaricus.train
 dtrain <- lgb.Dataset(train$data, label = train$label)
@@ -154,6 +168,7 @@ params <- list(
   , metric = "l2"
   , min_data = 1L
   , learning_rate = 1.0
+  , num_threads = 2L
 )
 model <- lgb.cv(
   params = params
@@ -162,4 +177,5 @@ model <- lgb.cv(
   , nfold = 3L
 )
 }
+
 }

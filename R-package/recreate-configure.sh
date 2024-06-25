@@ -1,7 +1,9 @@
 #!/bin/bash
 
+set -e -E -u -o pipefail
+
 # recreates 'configure' from 'configure.ac'
-# this script should run on Ubuntu 20.04
+# this script should run on Ubuntu 22.04
 AUTOCONF_VERSION=$(cat R-package/AUTOCONF_UBUNTU_VERSION)
 
 # R packages cannot have versions like 3.0.0rc1, but
@@ -28,7 +30,7 @@ sed -i.bak -e "s/~~VERSION~~/${LGB_VERSION}/" ${TMP_CONFIGURE_AC}
 autoconf \
     --output configure \
     ${TMP_CONFIGURE_AC} \
-    || exit -1
+    || exit 1
 
 rm ${TMP_CONFIGURE_AC}
 

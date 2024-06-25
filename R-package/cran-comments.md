@@ -1,5 +1,313 @@
 # CRAN Submission History
 
+## v4.4.0 - Submission 1 - (June 14, 2024)
+
+### CRAN response
+
+Accepted to CRAN
+
+### Maintainer Notes
+
+This was a standard release of `{lightgbm}`, not intended to fix any particular R-specific issues.
+
+## v4.3.0 - Submission 1 - (January 18, 2024)
+
+### CRAN response
+
+Accepted to CRAN
+
+### Maintainer Notes
+
+This submission was put up in response to CRAN saying the package would be archived if the following
+warning was not fixed within 14 days.
+
+```text
+/usr/local/clang-trunk/bin/../include/c++/v1/__fwd/string_view.h:22:41:
+warning: 'char_traits<fmt::detail::char8_type>' is deprecated:
+char_traits<T> for T not equal to char, wchar_t, char8_t, char16_t or char32_t is non-standard and is provided for a temporary period.
+It will be removed in LLVM 19, so please migrate off of it. [-Wdeprecated-declarations]
+```
+
+See https://github.com/microsoft/LightGBM/issues/6264.
+
+## v4.2.0 - Submission 1 - (December 7, 2023)
+
+### CRAN response
+
+Accepted to CRAN
+
+### Maintainer Notes
+
+This submission included many changes from the last 2 years, as well as fixes for a warning
+CRAN said could cause the package to be archived: https://github.com/microsoft/LightGBM/issues/6221.
+
+## v4.1.0 - not submitted
+
+v4.1.0 was not submitted to CRAN, because https://github.com/microsoft/LightGBM/issues/5987 had not been resolved.
+
+## v4.0.0 - Submission 2 - (July 19, 2023)
+
+### CRAN response
+
+> Dear maintainer,
+> package lightgbm_4.0.0.tar.gz does not pass the incoming checks automatically.
+
+The logs linked from those messagges showed one issue remaining on Debian (0 on Windows).
+
+```text
+* checking examples ... [7s/4s] NOTE
+Examples with CPU time > 2.5 times elapsed time
+                    user system elapsed  ratio
+lgb.restore_handle 1.206  0.085   0.128 10.08
+```
+
+### Maintainer Notes
+
+Chose to document the issue and need for a fix in https://github.com/microsoft/LightGBM/issues/5987, but not resubmit,
+to avoid annoying CRAN maintainers.
+
+## v4.0.0 - Submission 1 - (July 16, 2023)
+
+### CRAN response
+
+> Dear maintainer,
+> package lightgbm_4.0.0.tar.gz does not pass the incoming checks automatically.
+
+The logs linked from those messages showed the following issues from `R CMD check`.
+
+```text
+* checking S3 generic/method consistency ... NOTE
+Mismatches for apparent methods not registered:
+merge:
+  function(x, y, ...)
+merge.eval.string:
+  function(env)
+
+format:
+  function(x, ...)
+format.eval.string:
+  function(eval_res, eval_err)
+See section 'Registering S3 methods' in the 'Writing R Extensions'
+manual.
+```
+
+```text
+* checking examples ... [8s/4s] NOTE
+Examples with CPU time > 2.5 times elapsed time
+                    user system elapsed ratio
+lgb.restore_handle 1.819  0.128   0.165  11.8
+```
+
+### Maintainer Notes
+
+Attempted to fix these with https://github.com/microsoft/LightGBM/pull/5988 and resubmitted.
+
+## v3.3.5 - Submission 2 - (January 16, 2023)
+
+### CRAN response
+
+> Reason was
+>
+> Flavor: r-devel-windows-x86_64
+> Check: OOverall checktime, Result: NOTE
+>  Overall checktime 14 min > 10 min
+>
+> but the maintainer cannot do much to reduce this, so I triggered revdep checks now.
+> Please reply to the archival message in case the issue is not fixable easily.
+>
+> Best,
+> Uwe Ligges
+
+### Maintainer Notes
+
+This was technically not a "resubmission".
+We asked CRAN why the first v3.3.5 submission had been archived, and they responded with the response above... and then v3.3.5 passed all checks with no further work from LightGBM maintainers.
+
+## v3.3.5 - Submission 1 - (January 11, 2023)
+
+### CRAN response
+
+Archived without a response.
+
+### Maintainer Notes
+
+Submitted with the following comment.
+
+> This submission contains {lightgbm} 3.3.5
+
+> Per CRAN's policies, I am submitting it on behalf of the project's maintainer (Yu Shi), with his permission.
+
+> This submission includes patches to address the following warnings observed on the fedora and debian CRAN checks.
+
+> Found the following significant warnings:
+>  io/json11.cpp:207:47: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:216:51: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:225:53: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:268:60: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:272:36: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:276:37: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:381:41: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+> io/json11.cpp:150:39: warning: unqualified call to 'std::move' [-Wunqualified-std-cast-call]
+
+Thank you very much for your time and consideration.
+
+## v3.3.4 - Submission 1 - (December 15, 2022)
+
+### CRAN response
+
+Accepted to CRAN
+
+### Maintainer Notes
+
+Submitted with the following comment:
+
+> This submission contains {lightgbm} 3.3.4
+
+> Per CRAN's policies, I am submitting it on behalf of the project's maintainer (Yu Shi), with his permission.
+
+> This submission includes patches to address the following warnings observed on the fedora and debian CRAN checks.
+>
+> Compiled code should not call entry points which might terminate R nor write to stdout/stderr instead of to the console, nor use Fortran I/O nor system RNGs nor [v]sprintf.
+
+> Thank you very much for your time and consideration.
+
+## v3.3.3 - Submission 1 - (October 10, 2022)
+
+### CRAN response
+
+Accepted to CRAN
+
+### Maintainer Notes
+
+Submitted with the following comment:
+
+> This submission contains {lightgbm} 3.3.3.
+
+> Per CRAN's policies, I am submitting on it on behalf of the project's maintainer (Yu Shi), with his permission (https://github.com/microsoft/LightGBM/pull/5525).
+
+> This submission includes two patches:
+> * a change to testing to avoid a failed test related to non-ASCII strings on the `r-devel-linux-x86_64-debian-clang` check flavor (https://github.com/microsoft/LightGBM/pull/5526)
+> * modifications to allow compatibility with the RTools42 build toolchain (https://github.com/microsoft/LightGBM/pull/5503)
+
+> Thank you very much for your time and consideration.
+
+## v3.3.2 - Submission 1 - (January 7, 2022)
+
+### CRAN response
+
+Accepted to CRAN on January 14, 2022.
+
+### Maintainer Notes
+
+In this submission, we uploaded a patch that CRAN stuff provided us via e-mail. The full text of the e-mail from CRAN:
+
+```text
+Dear maintainers,
+
+This concerns the CRAN packages
+
+Cairo cepreader gpboost httpuv ipaddress lightgbm proj4 prophet
+RcppCWB RcppParallel RDieHarder re2 redux rgeolocate RGtk2 tth
+udunits2 unrtf
+
+maintained by one of you:
+
+Andreas Blaette andreas.blaette@uni-due.de: RcppCWB
+David Hall david.hall.physics@gmail.com: ipaddress
+Dirk Eddelbuettel edd@debian.org: RDieHarder
+Fabio Sigrist fabiosigrist@gmail.com: gpboost
+Friedrich Leisch Friedrich.Leisch@R-project.org: tth
+Girish Palya girishji@gmail.com: re2
+James Hiebert hiebert@uvic.ca: udunits2
+Jari Oksanen jhoksane@gmail.com: cepreader
+Kevin Ushey kevin@rstudio.com: RcppParallel
+ORPHANED: RGtk2
+Os Keyes ironholds@gmail.com: rgeolocate
+Rich FitzJohn rich.fitzjohn@gmail.com: redux
+Sean Taylor sjtz@pm.me: prophet
+Simon Urbanek simon.urbanek@r-project.org: proj4
+Simon Urbanek Simon.Urbanek@r-project.org: Cairo
+Winston Chang winston@rstudio.com: httpuv
+Yu Shi yushi2@microsoft.com: lightgbm
+
+your packages need to be updated for R-devel/R 4.2 to work on Windows,
+following the recent switch to UCRT and Rtools42.
+
+Sorry for the group message, please feel free to respond individually
+regarding your package or ask specifically about what needs to be fixed.
+
+I've created patches for you, so please review them and fix your packages:
+
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fsvn.r-project.org%2FR-dev-web%2Ftrunk%2FWindowsBuilds%2Fwinutf8%2Fucrt3%2Fr_packages%2Fpatches%2FCRAN%2F&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=rFGf7Y4Dvo6g1kzV%2BeAJDLGm1TUtzQsLsavElTw6H1U%3D&amp;reserved=0
+
+You can apply them as follows
+
+tar xfz package_1.0.0.tar.gz
+
+wget
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fsvn.r-project.org%2FR-dev-web%2Ftrunk%2FWindowsBuilds%2Fwinutf8%2Fucrt3%2Fr_packages%2Fpatches%2FCRAN%2Fpackage.diff&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=iyTjhoqvzj3IbQ8HGCZeh1IQl34FAGpIdVyZWkzNvO0%3D&amp;reserved=0
+
+patch --binary < package.diff
+
+These patches are currently automatically applied by R-devel on Windows
+at installation time, which makes most of your packages pass their
+checks (as OK or NOTE), but please check your results carefully and
+carefully review the patches. Usually these changes were because of
+newer GCC or newer MinGW in the toolchain, but some for other reasons,
+and some of them will definitely have to be improved so that the package
+keeps building also for older versions of R using Rtools40. We have only
+been testing the patches with UCRT (and Rtools42) on Windows.
+
+For more information, please see
+
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdeveloper.r-project.org%2FBlog%2Fpublic%2F2021%2F12%2F07%2Fupcoming-changes-in-r-4.2-on-windows%2F&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=SY77zgtbDbHvTxTgPLOoe%2Fw5OZDhXvJoxpVOoEaKoYo%3D&amp;reserved=0
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdeveloper.r-project.org%2FWindowsBuilds%2Fwinutf8%2Fucrt3%2Fhowto.html&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=dlVJ4nhQlmDPd56bHoVsWZuRfrUUorvOWxoUTmVDM%2Bg%3D&amp;reserved=0
+
+Once you add your patches/fix the issues, your package will probably
+show a warning during R CMD check (as patching would be attempted to be
+applied again). That's ok, at that point please let me know and I will
+remove my patch from the repository of automatically applied patches.
+
+If you end up just applying the patch as is, there is probably no need
+testing on your end, but you can do so using Winbuilder, r-hub, github
+actions (e.g. https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fkalibera%2Fucrt3&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=msqoPzqDStlAUn%2Bb6gGevwFPD%2FaNL5dTxiNud2Sqzy8%3D&amp;reserved=0).
+
+If you wanted to test locally on your Windows machine and do not have a
+UCRT version of R-devel yet, please uninstall your old version of
+R-devel, delete the old library used with that, install a new UCRT
+version of R-devel , and install Rtools42. You can keep Rtools40
+installed if you need it with R 4.1 or earlier.
+
+Currently, the new R-devel can be downloaded from
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.r-project.org%2Fnosvn%2Fwinutf8%2Fucrt3%2Fweb%2Frdevel.html&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=0hCwONzLmcW0GIXNqiOZQEIuhNA%2BjHhQvXsofs8J98o%3D&amp;reserved=0
+
+And Rtools42 from
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.r-project.org%2Fnosvn%2Fwinutf8%2Fucrt3%2Fweb%2Frtools.html&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=WLWLbOyQKbaYz8gkfKz2sqoGknjIOtl1aGAhUF%2Bpylg%3D&amp;reserved=0
+
+If you end up testing locally, you can use R_INSTALL_TIME_PATCHES
+environment variable to disable the automated patching, see the "howto"
+document above. That way you could also see what the original issue was
+causing.
+
+If you wanted to find libraries to link for yourself, e.g. in a newer
+version of your package, please look for "Using findLinkingOrder with
+Rtools42 (tiff package example)" in the "howto" document above. I
+created the patches for you manually before we finished this script, so
+you may be able to create a shorter version using it, but - it's
+probably not worth the effort.
+
+If you wanted to try in a virtual machine, but did not have a license,
+you can use also an automated setup of a free trial VM from
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdeveloper.r-project.org%2FBlog%2Fpublic%2F2021%2F03%2F18%2Fvirtual-windows-machine-for-checking-r-packages&amp;data=04%7C01%7Cyushi2%40microsoft.com%7C8e6c353d1a8842c81eeb08d9bef5d835%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637750786169848244%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=aFFQYuC9CoBwBiLgZHi8N3yUnSiHu5Xtdqb2YBiMIHQ%3D&amp;reserved=0
+
+(but that needs a very good and un-metered network connection to install)
+
+Please let us know if you have any questions.
+
+Thanks,
+Tomas & Uwe
+```
+
 ## v3.3.1 - Submission 1 - (October 27, 2021)
 
 ### CRAN response
