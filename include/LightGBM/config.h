@@ -902,7 +902,7 @@ struct Config {
 
   // desc = used only in ``lambdarank`` application
   // desc = set this to ``true`` to use the position bias correction of `Unbiased LambdaMART <https://arxiv.org/pdf/1809.05818.pdf>`__
-  bool lambdarank_unbiased = false;
+  bool lambdarank_unbiased = true;
 
   // check = >=0.0
   // desc = used only in ``lambdarank`` application where ``lambdarank_unbiased = true``
